@@ -1,5 +1,6 @@
 import java.nio.charset.StandardCharsets
 import java.util.*
+import kotlin.streams.toList
 
 class Util {
 
@@ -73,3 +74,10 @@ fun <T> List<T>.toDeque() :Deque<T> {
     this.forEach { d.addLast(it) }
     return d
 }
+
+fun String.splitIntoTwo() : Pair<String, String> {
+    val halfWay = this.length /2
+    return Pair(this.substring(0,halfWay),this.substring(halfWay,this.length))
+}
+
+fun String.toSetOfAscii() : Set<Int> = this.chars().toList().toSet()
