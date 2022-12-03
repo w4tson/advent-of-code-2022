@@ -16,6 +16,7 @@ mkdir -p $SRC_DIR/day$next_day
 mkdir -p $TEST_DIR/day$next_day
 mkdir -p $TEST_RES_DIR/day$next_day
 touch $TEST_RES_DIR/day${next_day}.txt
+touch $TEST_RES_DIR/test.txt
 
 cat << EOF > $SRC_DIR/day${next_day}/Day${next_day}.kt
 package aoc.day${next_day}
