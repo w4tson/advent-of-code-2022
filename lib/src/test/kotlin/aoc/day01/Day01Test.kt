@@ -4,8 +4,6 @@
 package aoc.day01
 
 import Util.Companion.readInput
-import aoc.calcMostCalories
-import aoc.top3
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
