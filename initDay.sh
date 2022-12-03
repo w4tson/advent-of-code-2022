@@ -53,5 +53,5 @@ class Day${next_day}Test {
 
 EOF
 
-echo "DONE \U0001f381 \U0001f384 \U0001f385"
+echo -e "DONE \U0001f381 \U0001f384 \U0001f385"
 
