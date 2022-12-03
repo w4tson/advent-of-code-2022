@@ -12,6 +12,13 @@ class Day02Test {
 
     val asdf = readInput("/day02/day02.txt")
 
+
+    @Test
+    fun asdf() {
+        val play2 = play2("A", "Y")
+        println(play2)
+    }
+
     @Test
     fun name() {
         println(playAll(input))
