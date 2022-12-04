@@ -5,8 +5,8 @@ import hasOverlapWith
 
 typealias ElfPair = Pair<ClosedRange<Int>, ClosedRange<Int>>
 
-fun part1(input : String): Int = toPairs(input).filter { fullyContained(it) }.count()
-fun part2(input : String): Int = toPairs(input).filter { it.first.hasOverlapWith(it.second) }.count()
+fun part1(input : String): Int = toPairs(input).count { fullyContained(it) }
+fun part2(input : String): Int = toPairs(input).count { it.first.hasOverlapWith(it.second) }
 
 fun fullyContained(elfPair : ElfPair) : Boolean =
     elfPair.first.fullyContains(elfPair.second) || elfPair.second.fullyContains(elfPair.first)
