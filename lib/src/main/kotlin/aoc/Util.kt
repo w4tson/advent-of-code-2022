@@ -81,3 +81,14 @@ fun String.splitIntoTwo() : Pair<String, String> {
 }
 
 fun String.toSetOfAscii() : Set<Int> = this.chars().toList().toSet()
+
+fun ClosedRange<Int>.fullyContains(other: ClosedRange<Int>) : Boolean {
+    return other.start >= this.start && other.endInclusive <= this.endInclusive
+}
+
+fun ClosedRange<Int>.hasOverlapWith(other: ClosedRange<Int>) : Boolean {
+    return (other.start >= this.start && other.start <= this.endInclusive) ||
+     (other.endInclusive >= this.start && other.endInclusive <= this.endInclusive) ||
+            (this.start >= other.start && this.start <= other.endInclusive) ||
+            (this.endInclusive >= other.start && this.endInclusive <= other.endInclusive)
+}
