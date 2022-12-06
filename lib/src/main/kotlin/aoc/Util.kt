@@ -92,3 +92,7 @@ fun ClosedRange<Int>.hasOverlapWith(other: ClosedRange<Int>) : Boolean {
             (this.start >= other.start && this.start <= other.endInclusive) ||
             (this.endInclusive >= other.start && this.endInclusive <= other.endInclusive)
 }
+
+fun <T> kotlin.collections.ArrayDeque<T>.removeLast(n : Int) : List<T> {
+    return (0 until n ).map { this.removeLast() }.toList().reversed()
+}

@@ -1,5 +1,7 @@
 package aoc.day05
 
+import removeLast
+
 val regex = "[\\d\\s]+".toRegex()
 val whiteSpace = "\\s+".toRegex()
 val move = """move (\d+) from (\d+) to (\d+)""".toRegex()
@@ -58,10 +60,4 @@ class Crane(val input: String ) {
 
         return stacks.map { it.last() }.joinToString("")
     }
-
-
-}
-
-fun <T> ArrayDeque<T>.removeLast(n : Int) : List<T> {
-    return (0 until n ).map { this.removeLast() }.toList().reversed()
 }
