@@ -12,10 +12,6 @@ class Day07Test {
     val testInput = readInput("/day07/day07-test.txt")
     val testInput2 = readInput("/day07/day07-test2.txt")
 
-    val testStr = """
-        ...
-    """.trimIndent()
-
     @Test
     fun test1() {
         assertEquals(95437, part1(testInput))
@@ -29,6 +25,16 @@ class Day07Test {
     @Test
     fun part1() {
         part1(input)
+    }
+
+    @Test
+    fun part2Test() {
+        assertEquals(24933642, part2(testInput))
+    }
+
+    @Test
+    fun part2() {
+        part2(input)
     }
 }
 

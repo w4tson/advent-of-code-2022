@@ -3,46 +3,27 @@ package aoc.day07
 import kotlin.collections.ArrayDeque
 
 sealed interface TreeObject
-class File(val name: String, val size: Int) : TreeObject {
-    override fun toString(): String {
-        return "$name (file, size=$size)"
-    }
-}
+class File(val name: String, val size: Int) : TreeObject
 class Dir(val name: String, val fqp : String, val files: MutableSet<TreeObject>) : TreeObject {
-    override fun toString(): String = "dir $name"
+    fun getDir(dirName : String) : Dir? = files.firstOrNull { it is Dir && it.name == dirName } as Dir?
 
-    override fun equals(other: Any?): Boolean = (other is Dir && other.name == name && other.fqp == fqp)
-
-    override fun hashCode(): Int = name.hashCode() + fqp.hashCode()
-
-    fun getDir(dirName : String) : Dir? {
-        return files.first { it is Dir && it.name == dirName } as Dir?
-    }
-
-    fun sum() : Int {
-        return files.sumOf {
-            when (it) {
-                is File -> it.size
-                is Dir -> it.sum()
-            }
+    fun sum() : Int = files.sumOf {
+        when (it) {
+            is File -> it.size
+            is Dir -> it.sum()
         }
     }
 }
 
 val r = "^(\\d+) (.*)".toRegex()
 
-fun part1(input : String): Int {
-    val path = ArrayDeque<Dir>()
-
-    val allPaths = mutableSetOf<Dir>()
-
+fun allPaths(input : String): MutableSet<Dir> {
     val root = Dir("/", "/", mutableSetOf())
+    val path = ArrayDeque(listOf(root))
+    val allPaths = mutableSetOf(root)
 
     input.lines().forEach { line ->
-        if (line == "\$ cd /") {
-            path.removeAll { true }
-            path.addLast(root)
-        } else if (line == "\$ cd .."){
+        if (line == "\$ cd .."){
             path.removeLast()
         } else if (line.startsWith("$ cd ")) {
             val dirName = line.substring(5)
@@ -58,14 +39,29 @@ fun part1(input : String): Int {
         } else {
             r.find(line)?.let {
                 val (size, name) = it.destructured
-                val file = File(name, size.toInt())
-                path.last().files.add(file)
+                path.last().files.add(File(name, size.toInt()))
             }
         }
     }
 
-    return allPaths.map { it.sum() }
-        .filter { it <= 100_000 }
-        .sum()
+    return allPaths;
+}
+
+fun part1(input : String) : Int = allPaths(input).map { it.sum() }
+    .filter { it <= 100_000 }
+    .sum()
+    .also { println(it) }
+
+fun part2(input: String): Int {
+    val root = allPaths(input).find { it.name == "/" }!!
+    val TOTAL_DISK_SPACE = 70000000
+    val MIN_UNUSED_SPACE = 30000000
+    val needToFree = root.sum() - (TOTAL_DISK_SPACE - MIN_UNUSED_SPACE)
+
+    return allPaths(input)
+        .map { it.sum() }
+        .filter { it > needToFree }
+        .sorted()
+        .first()
         .also { println(it) }
 }
