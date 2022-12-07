@@ -1,23 +1,26 @@
 package aoc.day07
 
+import kotlin.collections.ArrayDeque
+
 sealed interface TreeObject
-
-val dirTree = mutableMapOf<String, MutableList<TreeObject>>()
-
-
 class File(val name: String, val size: Int) : TreeObject {
     override fun toString(): String {
         return "$name (file, size=$size)"
     }
 }
-class Dir(val name: String) : TreeObject {
-    override fun toString(): String {
-        return "dir $name"
+class Dir(val name: String, val fqp : String, val files: MutableSet<TreeObject>) : TreeObject {
+    override fun toString(): String = "dir $name"
+
+    override fun equals(other: Any?): Boolean = (other is Dir && other.name == name && other.fqp == fqp)
+
+    override fun hashCode(): Int = name.hashCode() + fqp.hashCode()
+
+    fun getDir(dirName : String) : Dir? {
+        return files.first { it is Dir && it.name == dirName } as Dir?
     }
 
     fun sum() : Int {
-        val children = dirTree.getOrDefault(name, emptyList())
-        return children.sumOf {
+        return files.sumOf {
             when (it) {
                 is File -> it.size
                 is Dir -> it.sum()
@@ -26,71 +29,43 @@ class Dir(val name: String) : TreeObject {
     }
 }
 
-val <T> List<T>.tail: List<T>
-    get() = drop(1)
-
-val <T> List<T>.head: T
-    get() = first()
-
-val cache = mutableMapOf<String, Int>()
-
-fun sum(obj : Dir) : Int {
-    return cache.computeIfAbsent(obj.name) {
-        sum(listOf(obj), 0)
-    }
-}
-
-tailrec fun sum(objects : List<TreeObject>, acc: Int) : Int {
-    if (objects.isEmpty() || acc > 100001) return acc
-
-    val head = objects.first()
-    val extras = mutableListOf<TreeObject>()
-
-    val inc = when (head) {
-        is Dir -> {
-            extras.addAll(dirTree.getOrDefault(head.name, emptyList()))
-            0
-        }
-        is File ->  head.size
-    }
-
-    return sum( extras + objects.tail, acc + inc)
-}
-
 val r = "^(\\d+) (.*)".toRegex()
 
 fun part1(input : String): Int {
+    val path = ArrayDeque<Dir>()
 
-    var path = ArrayDeque<String>()
+    val allPaths = mutableSetOf<Dir>()
 
+    val root = Dir("/", "/", mutableSetOf())
 
-    input.lines().forEach {
-        if (it == "\$ cd /") {
+    input.lines().forEach { line ->
+        if (line == "\$ cd /") {
             path.removeAll { true }
-            path.addLast("/")
-        } else if (it.startsWith("$ cd ")) {
-            path.addLast(it.substring(5))
-        } else if (it.startsWith("dir ")){
-            val dirName = it.substring(4)
-            dirTree.computeIfAbsent(path.last()) { mutableListOf() }.add(Dir(dirName))
-        } else if (it == "\$ cd .."){
+            path.addLast(root)
+        } else if (line == "\$ cd .."){
             path.removeLast()
+        } else if (line.startsWith("$ cd ")) {
+            val dirName = line.substring(5)
+            path.last().getDir(dirName)?.let {
+                path.addLast(it)
+            }
+        } else if (line.startsWith("dir ")) {
+            val dirName = line.substring(4)
+            val newDir = Dir(dirName, path.joinToString("/"), mutableSetOf())
+            allPaths.add(newDir)
+            path.last().files.add(newDir)
+
         } else {
-            r.find(it)?.let {
+            r.find(line)?.let {
                 val (size, name) = it.destructured
                 val file = File(name, size.toInt())
-                dirTree.computeIfAbsent(path.last()) { mutableListOf() }.add(file)
+                path.last().files.add(file)
             }
         }
     }
 
-//    dirTree.forEach {
-//        println(it)
-//    }
-
-    return dirTree.keys.map { Dir(it) }
-        .map{ sum(it) }
-        .filter { it <= 100000 }
+    return allPaths.map { it.sum() }
+        .filter { it <= 100_000 }
         .sum()
         .also { println(it) }
 }
