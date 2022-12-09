@@ -1,5 +1,7 @@
+import java.lang.IllegalStateException
 import java.nio.charset.StandardCharsets
 import java.util.*
+import kotlin.math.absoluteValue
 import kotlin.streams.toList
 
 class Util {
@@ -95,4 +97,61 @@ fun ClosedRange<Int>.hasOverlapWith(other: ClosedRange<Int>) : Boolean {
 
 fun <T> kotlin.collections.ArrayDeque<T>.removeLast(n : Int) : List<T> {
     return (0 until n ).map { this.removeLast() }.toList().reversed()
+}
+
+class Coord(val x: Int, val y : Int) {
+
+    companion object {
+        val origin = Coord(0, 0)
+
+    }
+
+    fun isOneSquareAway(other: Coord) : Boolean {
+        val xDist = (x - other.x).absoluteValue
+        val yDist = (y - other.y).absoluteValue
+        val manhattanDistance = xDist + yDist
+        return this == other || manhattanDistance == 1 || (xDist == 1 && yDist == 1)
+    }
+
+    fun moveByChar(ch : Char) : Coord = when (ch) {
+        'U' -> Coord(x,y-1)
+        'D' -> Coord(x,y+1)
+        'L' -> Coord(x-1,y)
+        'R' -> Coord(x+1,y)
+        else -> throw IllegalStateException("Can't move in direction $ch")
+    }
+
+    fun coordBehind(ch : Char) : Coord {
+        return when (ch) {
+            'U' -> Coord(x,y+1)
+            'D' -> Coord(x,y-1)
+            'L' -> Coord(x+1,y)
+            'R' -> Coord(x-1,y)
+            else -> throw IllegalStateException("Can't find coord behind in direction $ch")
+        }
+    }
+
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Coord
+
+        if (x != other.x) return false
+        if (y != other.y) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = x
+        result = 31 * result + y
+        return result
+    }
+
+    override fun toString(): String {
+        return "Coord(x=$x, y=$y)"
+    }
 }
