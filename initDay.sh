@@ -8,10 +8,8 @@ TEST_DIR=$SCRIPT_DIR/lib/src/test/kotlin/aoc
 TEST_RES_DIR=$SCRIPT_DIR/lib/src/test/resources
 
 prev_day=`ls $SRC_DIR | grep -E "day[0-9]+" | sort | tail -n 1 | sed 's/day//'`
-echo $prev_day
-temp=$((prev_day+1))
-echo $next_day
-printf -v next_day "%02d" $temp
+
+printf -v next_day "%02d" $((10#prev_day+1))
 echo "Generating Day$next_day..."
 
 mkdir -p $SRC_DIR/day$next_day
