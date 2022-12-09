@@ -1,6 +1,7 @@
-import java.lang.IllegalStateException
+import Compass.*
 import java.nio.charset.StandardCharsets
 import java.util.*
+import kotlin.IllegalStateException
 import kotlin.math.absoluteValue
 import kotlin.streams.toList
 
@@ -103,14 +104,19 @@ class Coord(val x: Int, val y : Int) {
 
     companion object {
         val origin = Coord(0, 0)
+    }
 
+    fun isOrthogonalTo(other : Coord) : Boolean {
+        val xDist = (x - other.x).absoluteValue
+        val yDist = (y - other.y).absoluteValue
+        val manhattanDistance = xDist + yDist
+        return this == other || manhattanDistance == 1
     }
 
     fun isOneSquareAway(other: Coord) : Boolean {
         val xDist = (x - other.x).absoluteValue
         val yDist = (y - other.y).absoluteValue
-        val manhattanDistance = xDist + yDist
-        return this == other || manhattanDistance == 1 || (xDist == 1 && yDist == 1)
+        return isOrthogonalTo(other) || (xDist == 1 && yDist == 1)
     }
 
     fun moveByChar(ch : Char) : Coord = when (ch) {
@@ -121,17 +127,44 @@ class Coord(val x: Int, val y : Int) {
         else -> throw IllegalStateException("Can't move in direction $ch")
     }
 
-    fun coordBehind(ch : Char) : Coord {
-        return when (ch) {
-            'U' -> Coord(x,y+1)
-            'D' -> Coord(x,y-1)
-            'L' -> Coord(x+1,y)
-            'R' -> Coord(x-1,y)
-            else -> throw IllegalStateException("Can't find coord behind in direction $ch")
+    operator fun plus(other : Coord) : Coord = Coord(x + other.x, y + other.y)
+    operator fun minus(other : Coord) : Coord = Coord(x - other.x, y - other.y)
+    operator fun component1() : Int = x
+    operator fun component2() : Int = y
+
+    fun directionTo(other: Coord): Compass {
+        val v = other - this
+        return when  {
+            v.x == 0 && v.y < 0 -> NORTH
+            v.x == 0 && v.y > 0 -> SOUTH
+            v.x > 0 && v.y == 0 -> EAST
+            v.x < 0 && v.y == 0 -> WEST
+            v.x > 0 && v.y < 0 -> NORTH_EAST
+            v.x > 0 && v.y > 0 -> SOUTH_EAST
+            v.x < 0 && v.y > 0 -> SOUTH_WEST
+            v.x < 0 && v.y < 0 -> NORTH_WEST
+            else -> throw IllegalStateException("that's gone wrong")
         }
     }
 
+    fun follow(other: Coord) : Coord {
+        return if (isOneSquareAway(other)) {
+            this;
+        } else {
+            val vector = when (directionTo(other)) {
+                NORTH -> Coord(0,-1)
+                SOUTH -> Coord(0,1)
+                EAST -> Coord(1,0)
+                WEST -> Coord(-1,0)
+                NORTH_EAST -> Coord(1,-1)
+                SOUTH_EAST -> Coord(1,1)
+                SOUTH_WEST -> Coord(-1,1)
+                NORTH_WEST -> Coord(-1,-1)
+            }
 
+            this + vector
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -154,4 +187,15 @@ class Coord(val x: Int, val y : Int) {
     override fun toString(): String {
         return "Coord(x=$x, y=$y)"
     }
+}
+
+enum class Compass {
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST,
+    NORTH_EAST,
+    NORTH_WEST,
+    SOUTH_EAST,
+    SOUTH_WEST
 }

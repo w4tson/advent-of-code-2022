@@ -17,19 +17,37 @@ val testStr = """
     R 2
 """.trimIndent()
 
+val testStr2 = """
+    R 5
+    U 8
+    L 8
+    D 3
+    R 17
+    D 10
+    L 25
+    U 20
+""".trimIndent()
+
 val input = readInput("/day09/day09.txt")
 class Day09Test {
     @Test
     fun part1Test() {
-        val c1 = Coord(1,1)
-        val c2 = Coord(1,1)
-        assert(c1 == c2)
-
-        assertEquals(13,  part1(testStr))
+        assertEquals(13,  simulateRope(testStr))
     }
 
     @Test
     fun part1() {
-        part1(input)
+        simulateRope(input)
+    }
+
+    @Test
+    fun part2Test() {
+        assertEquals(36, simulateRope(testStr2, ropeLength = 10))
+    }
+
+    @Test
+    fun part2() {
+        simulateRope(input, ropeLength = 10)
     }
 }
+
