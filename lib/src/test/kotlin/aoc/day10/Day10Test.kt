@@ -43,6 +43,18 @@ class Day10Test {
         println(part1(crt))
 
     }
+
+    @Test
+    fun part2Test() {
+        val crt = CRT(testInput.toInstructions())
+        part2(crt)
+    }
+
+    @Test
+    fun part2() {
+        val crt = CRT(input.toInstructions())
+        part2(crt)
+    }
 }
 
 
