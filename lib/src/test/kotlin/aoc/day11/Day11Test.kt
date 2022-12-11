@@ -34,8 +34,15 @@ class Day11Test {
     val testStr = """
         ...
     """.trimIndent()
-    val testMonkeys = testInput.chunkByEmptyLine().map(::toMonkey)
-    val monkeys = input.chunkByEmptyLine().map(::toMonkey)
+    val testMonkeys = toMonkeys(testInput)
+    val monkeys = toMonkeys(input)
+
+    fun toMonkeys(input: String) : List<Monkey> {
+        val m = input.chunkByEmptyLine().map(::toMonkey)
+        val commonMuliple = m.map{ it.divisibleBy }.reduce(Long::times)
+        m.forEach { it.commonMultiple = commonMuliple }
+        return m
+    }
 
     @Test
     fun test1() {
@@ -44,8 +51,13 @@ class Day11Test {
 
     @Test
     fun name() {
-        // 56168 too high
         part1(monkeys)
     }
+
+    @Test
+    fun part2Experiment() {
+        part2(monkeys)
+    }
+
 }
 

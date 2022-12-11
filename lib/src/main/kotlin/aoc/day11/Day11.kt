@@ -5,16 +5,24 @@ import kotlin.math.floor
 
 data class ThrownItem(val monkeyId: Int, val item : Long)
 
-fun part1(monkeys: List<Monkey>): Int {
-
-    (0 until 20).map {
-        round(monkeys);
-    }
-
-    return monkeys.map { it.inspections }
+fun part2(monkeys: List<Monkey>): Long {
+    return performRounds(monkeys, 10_000).map { it.inspections }
         .sorted()
         .takeLast(2)
-        .reduce(Int::times)
+        .reduce(Long::times)
+        .also { println(it) }
+}
+fun performRounds(monkeys: List<Monkey>, rounds : Int): List<Monkey> {
+    (0 until rounds).map { round(monkeys) }
+
+    return monkeys
+}
+
+fun part1(monkeys: List<Monkey>) : Long {
+    return performRounds(monkeys, 20).map { it.inspections }
+        .sorted()
+        .takeLast(2)
+        .reduce(Long::times)
         .also { println(it) }
 }
 
@@ -32,8 +40,9 @@ data class Monkey(val id: Int,
                   val rhs: String,
                   val divisibleBy: Long,
                   val ifTrue: Int,
-                  val ifFalse: Int) {
-    var inspections : Int = 0
+                  val ifFalse: Int,
+                  var commonMultiple: Long = 0) {
+    var inspections : Long = 0
 
     fun turn() : List<ThrownItem> {
         return items.map { processItem(it) }.also { items.clear() }
@@ -51,8 +60,11 @@ data class Monkey(val id: Int,
             '*' -> item * value
             else -> throw IllegalStateException()
         }
-        val newValue = floor(operatorApplied.toDouble() / 3.0).toLong()
-        val monkeyDestination = if (newValue % divisibleBy == 0L) ifTrue else ifFalse
+        val newValue = operatorApplied % commonMultiple
+        val monkeyDestination = if (operatorApplied % divisibleBy == 0L) ifTrue else ifFalse
+        if (operatorApplied < 0) {
+            println("warning ${operatorApplied}")
+        }
 
         return ThrownItem(monkeyDestination, newValue)
     }
