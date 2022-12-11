@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 fun String.toInstructions() : Array<Instr> = this.lines().map {
     if (it == "noop") {
-        Noop(1)
+        Noop()
     } else {
         val (_, value) = it.split(" ")
         Addx(value.toInt(), 2)

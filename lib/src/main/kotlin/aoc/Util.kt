@@ -199,3 +199,21 @@ enum class Compass {
     SOUTH_EAST,
     SOUTH_WEST
 }
+
+fun String.chunkLinesBy(p : (s : String) -> Boolean) : List<String> {
+    val initial = listOf<MutableList<String>>(mutableListOf())
+    val result = this.lines().fold(initial) { acc, line ->
+        if (p(line)) {
+            acc + listOf(mutableListOf())
+        } else {
+            acc.last().add(line)
+            acc
+        }
+    }
+
+    return result.map { it.joinToString("\n") }
+}
+
+fun String.chunkByEmptyLine() = this.chunkLinesBy { it.trim().isEmpty() }
+
+fun String.stripAndLastToInt() : Int = split(" ").last().toInt()
