@@ -106,6 +106,11 @@ class Coord(val x: Int, val y : Int) {
         val origin = Coord(0, 0)
     }
 
+    fun getAdjacent(width: Int = Int.MAX_VALUE, height: Int = Int.MAX_VALUE, allowNegative: Boolean = true) : List<Coord> {
+        return listOf(Coord(x,y-1),Coord(x+1,y),Coord(x,y+1),Coord(x-1,y))
+            .filter { it.x < width && it.y < height && (allowNegative || (it.x >= 0 && it.y >= 0)) }
+    }
+
     fun isOrthogonalTo(other : Coord) : Boolean {
         val xDist = (x - other.x).absoluteValue
         val yDist = (y - other.y).absoluteValue
