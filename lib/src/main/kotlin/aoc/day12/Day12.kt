@@ -15,19 +15,20 @@ fun part2(input : String) : Int {
     val startingPoints = toHeightMap(input).heights.entries.filter { it.value == 'a' }.map { it.key }
     return startingPoints.map {
         val heightMap = toHeightMap(input)
+
         shortestPathToE(heightMap, it)
-    }.min()
+    }.min().also { println(it) }
 }
 
 fun shortestPathToE(heightMap : HeightMap, start: Coord): Int {
     val map = heightMap.heights
 
-    val destination: Coord = map.entries.filter { it.value == 'E' }.first().key
-    val rest = map.entries.filter { it.key != start }.map { Pair(it.key, Int.MAX_VALUE) }.toTypedArray()
-
-    val distances = mutableMapOf(Pair(start, 0), *rest)
+    val destination: Coord = map.entries.first { it.value == 'E' }.key
 
     val unvisited = map.entries.filter { it.key != start }.map { it.key }.toMutableSet()
+
+    val rest = unvisited.map { Pair(it, Int.MAX_VALUE) }.toTypedArray()
+    val distances = mutableMapOf(Pair(start, 0), *rest)
     val visited = mutableSetOf(start)
     var currentNode = start
 
@@ -39,7 +40,7 @@ fun shortestPathToE(heightMap : HeightMap, start: Coord): Int {
                 !visited.contains(it) && m
             }
             .forEach {  adjacent ->
-                val newDistance = distances[currentNode]!! + 1
+                val newDistance = if (distances[currentNode]!! == Int.MAX_VALUE) distances[currentNode]!! else distances[currentNode]!! + 1
                 distances.compute(adjacent) { key, old ->
                     val currDistance = (old?.let { old } ?: Int.MAX_VALUE)
                     val i: Int? = if (newDistance < currDistance) newDistance else currDistance
@@ -61,7 +62,7 @@ fun shortestPathToE(heightMap : HeightMap, start: Coord): Int {
 
     val shortestDistance = distances[destination]!!
 
-    return shortestDistance.also { println("Shortest distance to E = $it") }
+    return shortestDistance
 }
 
 fun canMove(from: Char, to: Char) : Boolean {
