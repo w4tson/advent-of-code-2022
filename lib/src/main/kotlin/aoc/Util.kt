@@ -152,6 +152,24 @@ class Coord(val x: Int, val y : Int) {
         }
     }
 
+    fun north() : Coord = moveBy(NORTH)
+    fun south() : Coord = moveBy(SOUTH)
+    fun southEast() : Coord = moveBy(SOUTH_EAST)
+    fun southWest() : Coord = moveBy(SOUTH_WEST)
+
+    fun moveBy(compass : Compass) : Coord {
+        return when(compass) {
+            NORTH -> this + Coord(0,-1)
+            SOUTH -> this + Coord(0,1)
+            EAST -> this + Coord(1,0)
+            WEST -> this + Coord(-1,0)
+            NORTH_EAST -> this + Coord(1,-1)
+            SOUTH_EAST -> this + Coord(1,1)
+            SOUTH_WEST -> this + Coord(-1,1)
+            NORTH_WEST -> this + Coord(-1,-1)
+        }
+    }
+
     fun follow(other: Coord) : Coord {
         return if (isOneSquareAway(other)) {
             this;
