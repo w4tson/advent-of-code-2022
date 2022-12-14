@@ -26,5 +26,10 @@ class   Day13Test {
     fun part1() {
         part1(input)
     }
+
+    @Test
+    fun test2() {
+        part2(input)
+    }
 }
 

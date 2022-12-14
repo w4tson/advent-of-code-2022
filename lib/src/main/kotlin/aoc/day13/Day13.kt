@@ -21,57 +21,46 @@ class Packet(data : MutableList<P>) : P(data) {
     override fun toPacket(): Packet = this
 }
 
-fun part1(input : String) : Int = input.chunkByEmptyLine().mapIndexed { i, it ->
-        val (p1, p2) = it.split("\n")
-        val left = toPacket(p1)
-        val right = toPacket(p2)
-        println("== Pair ${i+1} ==")
-        Pair(i+1, isOrdered(left, right))
+private val packetComparator =  Comparator<Packet> { a, b -> -1 * compare(a, b, 0) }
+
+fun part2(input: String): Int {
+    val dividers = listOf("[[2]]", "[[6]]")
+    return (input.lines().filter { it.trim().isNotEmpty() } + dividers)
+        .asSequence()
+        .map { toPacket(it) }
+        .sortedWith(packetComparator)
+        .mapIndexed{ i, p -> Pair(i+1,p) }
+        .filter { dividers.contains(it.second.toString()) }
+        .map { it.first }
+        .reduce(Int::times)
+        .also { println(it) }
+}
+
+fun part1(input : String) : Int = input.chunkByEmptyLine()
+    .mapIndexed { i, it ->
+        Pair(i+1, isOrdered(toPacket(it.split("\n")[0]), toPacket(it.split("\n")[1])))
     }
     .filter { it.second }
     .sumOf { it.first }
     .also { println(it) }
 
-fun isOrdered(left : Packet, right: Packet) : Boolean = (comparePacket(left, right, 0) > 0)
-
-fun output(s : String, deep : Int) {
-    (0 until deep).forEach { print("\t") }
-    println(s)
-}
+fun isOrdered(left : Packet, right: Packet) : Boolean = comparePacket(left, right, 0) > 0
 
 fun comparePacket(left : Packet, right: Packet, deep: Int) : Int {
-    output("- Compare $left vs $right", deep)
-
     val result = left.data.zip(right.data)
         .asSequence()
         .map { compare(it.first, it.second, deep+1) }
-        .dropWhile { it == 0 }.firstOrNull()
+        .dropWhile { it == 0 }
+        .firstOrNull()
 
-    val sizeComparison = right.data.size - left.data.size
-    return if (result == null) {
-        if (right.data.size > left.data.size) {
-            output("Left side ran out of items", deep+1)
-        } else {
-            output("Right side ran out of items", deep+1)
-        }
-        sizeComparison
-    } else if (result == 0) {
-        sizeComparison
-    } else {
-        if (result < 0) {
-            output("Right side is smaller", deep+1)
-        } else {
-            output("left side is smaller", deep+1)
-        }
-        result
+    return when (result) {
+        null, 0 -> right.data.size - left.data.size
+        else ->  result
     }
 }
 
 fun compare(left : P, right: P, deep : Int) : Int {
     return if (left is Value && right is Value) {
-        (0 until deep).forEach { print("\t") }
-
-        println("- Compare ${left.v} vs ${right.v}")
         right.v - left.v
     } else if (left is Packet && right is Packet) {
         comparePacket(left, right, deep +1)
