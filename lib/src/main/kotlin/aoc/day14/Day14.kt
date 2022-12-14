@@ -4,39 +4,32 @@ import Coord
 import java.lang.IllegalStateException
 
 
-class Cave(val map: MutableMap<Coord, Char>){
+class Cave(val map: MutableMap<Coord, Char>, private val hasFloor : Boolean){
     private val source = Coord(500,0)
     private val minx : Int
     private val miny : Int
     private val maxy : Int
     private val maxx : Int
+    var sand = source
 
     init {
-        map.put(source, '+')
+        map[source] = '+'
         minx = map.keys.minOf { it.x }
         miny = map.keys.minOf { it.y }
         maxx = map.keys.maxOf { it.x }
-        maxy = map.keys.maxOf { it.y }
+        maxy = map.keys.maxOf { it.y } + 2
     }
 
-    fun showMap() {
-        (miny..maxy).forEach {  y ->
-            print("$y ")
-            (minx..maxx).forEach { x ->
-                print(map.getOrDefault(Coord(x,y),'.'))
-            }
-            println("  $maxx")
-        }
-    }
+    fun simulatePart1() = simulate { sand.y <= maxy }
+    fun simulatePart2() = simulate { map[source] != 'O' }
 
-    fun simulate(): Int {
-        var sand = source.south()
-        while(sand.y <= maxy) {
+    fun simulate(isTrue : () -> Boolean): Int {
+        while(isTrue()) {
             flow(sand)?.let {
                 sand = it
             } ?: run {
                 map[sand] = 'O'
-                sand = source.south()
+                sand = source
             }
         }
 
@@ -48,22 +41,23 @@ class Cave(val map: MutableMap<Coord, Char>){
         val southEast = sand.southEast()
         val southWest = sand.southWest()
 
-        return if (map.getOrDefault(south, '.') == '.') {
+        return if (lookup(south) == '.') {
             south
-        } else if (map.getOrDefault(southWest, '.') == '.') {
+        } else if (lookup(southWest) == '.') {
             southWest
-        } else if (map.getOrDefault(southEast, '.') == '.') {
+        } else if (lookup(southEast) == '.') {
             southEast
         } else null
     }
+
+    fun lookup(coord : Coord) : Char = when (coord.y) {
+        maxy -> if (hasFloor) '#' else '.'
+        else -> map.getOrDefault(coord, '.')
+    }
 }
 
-fun toCave(input: String) : Cave {
-    val map = toCoords(input).map { Pair(it, '#') }.toMap().toMutableMap()
-    return Cave(map)
-}
-
-fun toCoords(input: String) : List<Coord> = input.lines().flatMap { toCoordsForLine(it) }
+fun toCave(input: String, hasFloor: Boolean = false) : Cave = Cave(toCoords(input).associateWith { '#' }.toMutableMap(), hasFloor)
+fun toCoords(input: String) : List<Coord> = input.lines().flatMap(::toCoordsForLine)
 
 fun toCoordsForLine(line : String) : Set<Coord> {
     return line.split(" -> ")

@@ -18,12 +18,22 @@ class Day14Test {
 
     @Test
     fun test1() {
-        assertEquals(24, toCave(testStr).simulate())
+        assertEquals(24, toCave(testStr).simulatePart1())
     }
 
     @Test
     fun part1() {
-        toCave(input).simulate()
+        toCave(input).simulatePart1()
+    }
+
+    @Test
+    fun part2Test() {
+        assertEquals(93, toCave(testStr, true).simulatePart2())
+    }
+
+    @Test
+    fun part2() {
+        toCave(input, true).simulatePart2()
     }
 }
 
