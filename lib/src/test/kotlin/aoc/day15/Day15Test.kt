@@ -15,17 +15,31 @@ class Day15Test {
         ...
     """.trimIndent()
 
+    val t = Tunnels.toTunnels(testInput)
+
     @Test
     fun test1() {
-        val t = Tunnels.toTunnels(testInput)
 //        t.show()
-        assertEquals(26, t.part1(10))
+        assertEquals(26, t.countDeadzones(10))
+    }
+
+    @Test
+    fun test2() {
+        assertEquals(56000011, t.calcFrequency(20))
+    }
+
+
+    @Test
+    fun part2() {
+        val t = Tunnels.toTunnels(input)
+        t.calcFrequency(4_000_000)
+
     }
 
     @Test
     fun part1() {
         val t = Tunnels.toTunnels(input)
-        t.part1(2000000)
+        t.countDeadzones(2000000)
     }
 }
 

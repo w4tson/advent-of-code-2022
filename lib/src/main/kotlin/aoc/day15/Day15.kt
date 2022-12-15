@@ -1,33 +1,33 @@
 package aoc.day15
 
 import Coord
-import kotlin.math.absoluteValue
+import java.lang.Integer.min
 import kotlin.math.max
 
-// Sensor at x=20, y=1: closest beacon is at x=15, y=3
 val r = """Sensor at x=([\d-]+), y=([\d-]+): closest beacon is at x=([\d-]+), y=([\d-]+)""".toRegex()
-
-
 class Tunnels(val map : Map<Coord, Coord>) {
+    fun countDeadzones(y : Int, restrictBy: Pair<Int,Int> = Pair(Int.MIN_VALUE, Int.MAX_VALUE), excludeBeacons: Boolean = true) : Int {
+          return horizontalDeadZones(y).sumOf { deadZoneRange ->
+              println(deadZoneRange)
+              val start = max(restrictBy.first, deadZoneRange.first)
+              val end = min(restrictBy.second, deadZoneRange.second)
+              val beaconsInTheMix = map.values.filter { it.y == y && it.x >= start && it.x <= end }.toSet().count()
+              (start..end).count() - if (excludeBeacons) beaconsInTheMix else 0
+          }.also { println(it) }
+    }
 
-    val sensorsAndBeacons = map.entries.flatMap { listOf(it.key, it.value) }
-
-    val minx = sensorsAndBeacons.minOf { it.x }
-    val miny = sensorsAndBeacons.minOf { it.y }
-    val maxx = sensorsAndBeacons.maxOf { it.x }
-    val maxy = sensorsAndBeacons.maxOf { it.y }
-
-    fun part1(y : Int) : Int {
+    fun horizontalDeadZones(y: Int): List<Pair<Int, Int>> {
         val sensorRadius = map.entries.associate { Pair(it.key, it.key.manhattenDistanceTo(it.value)) }
 
-        val intersectingSensors = sensorRadius.entries.filter{ (it.key.y + it.value) >= y && (it.key.y - it.value) <= y  }
+        val intersectingSensors =
+            sensorRadius.entries.filter { (it.key.y + it.value) >= y && (it.key.y - it.value) <= y }
 
         return intersectingSensors
             .map {
                 val deadZoneRange = it.key.allCoordsWithinARadius(it.value, y)
                 Pair(deadZoneRange.first.x, deadZoneRange.second.x)
-            }.sortedWith(compareBy({it.first} , {it.second }))
-            .fold(listOf<Pair<Int, Int>>()) { acc, it ->
+            }.sortedWith(compareBy({ it.first }, { it.second }))
+            .fold(listOf()) { acc, it ->
                 if (acc.isEmpty()) listOf(it)
                 else if (acc.last().second >= it.first) {
                     acc.dropLast(1) + listOf(Pair(acc.last().first, max(acc.last().second, it.second)))
@@ -35,12 +35,13 @@ class Tunnels(val map : Map<Coord, Coord>) {
                     acc + it
                 }
             }
-          .sumOf {deadZoneRange ->
-              val beaconsInTheMix = map.values.filter { it.y == y && it.x >= deadZoneRange.first && it.x <= deadZoneRange.second }.toSet().count()
-              (deadZoneRange.first..deadZoneRange.second).count() - beaconsInTheMix
-          }.also { println(it) }
     }
 
+    fun calcFrequency(max: Int): Long {
+        val y = (0..max).first { horizontalDeadZones(it).size > 1 }
+        val x = horizontalDeadZones(y).first().second + 1
+        return ((x.toLong() * 4_000_000L) + y.toLong()).also { println(it) }
+    }
 
     companion object {
         fun toTunnels(input: String) : Tunnels {
@@ -61,34 +62,4 @@ class Tunnels(val map : Map<Coord, Coord>) {
             return Tunnels(beaconLocations)
         }
     }
-
-
-    fun show() {
-        val sensor = Coord(8, 7)
-        val beacon = map.get(sensor)!!
-
-        val r = sensor.manhattenDistanceTo(beacon)
-        println("r = $r")
-//        val deadZone = sensor.allCoordsWithinARadius(r)
-
-
-        (miny..maxy).forEach { y ->
-            print("$y ".padStart(5))
-            (minx..maxx).forEach { x ->
-                val message: Char = map.get(Coord(x, y))?.let { 'S' } ?: run {
-                    if (map.values.contains(Coord(x,y)))  'B' else '.'
-//                    if (map.values.contains(Coord(x,y)))  'B'  else if (deadZone.contains(Coord(x,y))) '#' else '.'
-                }
-                print("$message")
-            }
-            println()
-        }
-    }
-
-
 }
-
-
-
-
-
