@@ -189,6 +189,31 @@ class Coord(val x: Int, val y : Int) {
         }
     }
 
+    fun manhattenDistanceTo(other : Coord) : Int {
+        val xDist = (x - other.x).absoluteValue
+        val yDist = (y - other.y).absoluteValue
+        return xDist + yDist
+    }
+
+    fun allCoordsWithinARadius(r : Int) : Set<Coord> {
+        val coords = mutableSetOf<Coord>()
+        val miny = this.y - r
+        val maxy = this.y + r
+        val minx = this.x - r
+        val maxx = this.x + r
+
+        (miny..maxy).forEach {  y->
+            (minx..maxx).forEach { x ->
+                val coord = Coord(x, y)
+                if (coord.manhattenDistanceTo(this) <= r) {
+                    coords.add(coord)
+                }
+            }
+        }
+
+        return coords.toSet()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
