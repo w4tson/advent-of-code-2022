@@ -18,14 +18,14 @@ class Day15Test {
     @Test
     fun test1() {
         val t = Tunnels.toTunnels(testInput)
-        t.show()
-        assertEquals(26, t.deadZonesInRow(10))
+//        t.show()
+        assertEquals(26, t.part1(10))
     }
 
     @Test
     fun part1() {
         val t = Tunnels.toTunnels(input)
-        t.deadZonesInRow(2000000)
+        t.part1(2000000)
     }
 }
 

@@ -195,23 +195,15 @@ class Coord(val x: Int, val y : Int) {
         return xDist + yDist
     }
 
-    fun allCoordsWithinARadius(r : Int) : Set<Coord> {
-        val coords = mutableSetOf<Coord>()
-        val miny = this.y - r
-        val maxy = this.y + r
-        val minx = this.x - r
-        val maxx = this.x + r
+    fun allCoordsWithinARadius(r : Int, y: Int) : Pair<Coord, Coord> {
+        val distanceToY = (this.y - y).absoluteValue
+        val minx = x - r
+        val maxx = x + r
 
-        (miny..maxy).forEach {  y->
-            (minx..maxx).forEach { x ->
-                val coord = Coord(x, y)
-                if (coord.manhattenDistanceTo(this) <= r) {
-                    coords.add(coord)
-                }
-            }
-        }
+        val start = Coord((minx + distanceToY), y)
+        val end = Coord((maxx - distanceToY), y)
 
-        return coords.toSet()
+        return Pair(start, end)
     }
 
     override fun equals(other: Any?): Boolean {
